@@ -15,7 +15,7 @@ import Animated, {
  withSpring,
  withTiming
 } from "react-native-reanimated";
-import { home, list } from "../../../assets/icons/index";
+import { home, list, profile } from "../../../assets/icons/index";
 
 const TabIcon = ({
  source,
@@ -169,12 +169,12 @@ export default function TabLayout() {
    }}
   >
    <Tabs.Screen
-    name="product"
+    name="profile"
     options={{
-     title: "Product",
+     title: "Profile",
      headerShown: false,
      tabBarIcon: ({ focused }) => (
-      <TabIcon source={list} focused={focused} name="product" />
+      <TabIcon source={profile} focused={focused} name="profile" />
      ),
     }}
    />

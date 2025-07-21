@@ -106,7 +106,7 @@ export default function BarcodeScanner() {
         style={[styles.button, styles.continueButton]}
         onPress={handleContinue}
        >
-        <Text style={styles.buttonText}>Continue to Edit</Text>
+        <Text style={styles.buttonText}>Upload Photo</Text>
        </TouchableOpacity>
       </View>
      </View>

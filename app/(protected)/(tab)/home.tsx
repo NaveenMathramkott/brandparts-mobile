@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
  Dimensions,
  ScrollView,
@@ -11,37 +12,61 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../../../hooks/useAuth";
 
 const DashboardScreen = () => {
  const router = useRouter();
+ const { user } = useAuth();
+ const [dashboardData, setDashboardData] = useState({})
  const screenWidth = Dimensions.get("window").width;
 
- // Sample data
- const stats = {
-  products: 1243,
-  images: 5678,
-  monthlyGrowth: 12.5,
- };
 
- // Monthly data
- const monthlyData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  datasets: [
-   {
-    data: [120, 145, 178, 200, 220, 243, 120, 145, 178, 200, 220, 243,],
-    color: (opacity = 1) => `rgba(75, 192, 192, ${opacity})`,
-    strokeWidth: 3,
-   },
-   {
-    data: [80, 110, 135, 360, 185, 210, 120, 15, 178, 240, 320, 243,],
-    color: (opacity = 1) => `rgba(54, 162, 235, ${opacity})`,
-    strokeWidth: 3,
-   },
-  ],
- };
+ const getGreeting = () => {
+  const currentHour = new Date().getHours();
 
+  if (currentHour < 12) {
+   return "Good Morning";
+  } else if (currentHour < 17) {
+   return "Good Afternoon";
+  } else if (currentHour < 20) {
+   return "Good Evening";
+  } else {
+   return "Good Night";
+  }
+ }
 
+ const getDashboardMonthlyData = async () => {
+  try {
+   // Replace with your actual API endpoint
+   const response = await axios.get(
+    `http://192.168.1.147:5000/api/product/dashboard?userId=${user?.id}`,
 
+    {
+     headers: {
+      "Content-Type": "application/json",
+     },
+    }
+   );
+
+   return response.data;
+  } catch (error) {
+   console.error("Auth service error:", error);
+   throw error;
+  }
+ }
+
+ useEffect(() => {
+  const fetchData = async () => {
+   try {
+    const data = await getDashboardMonthlyData();
+    setDashboardData(data);
+   } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+   }
+  };
+
+  fetchData();
+ }, []);
 
 
  const chartConfig = {
@@ -62,41 +87,39 @@ const DashboardScreen = () => {
  };
 
 
-
  return (
   <SafeAreaView style={styles.container}>
    <ScrollView >
     {/* Header */}
     <View style={styles.header}>
      <View>
-      <Text style={styles.title}>Hi Naveen</Text>
-      <Text style={styles.subtitle}>Last updated: Today, 10:30 AM</Text>
+      <Text style={styles.title} numberOfLines={1}>Hi {user?.name}</Text>
+      <Text style={styles.subtitle}>{getGreeting()}</Text>
      </View>
-     <TouchableOpacity style={styles.agentAvatarPlaceholder} onPress={() => router.push("/(protected)/profile")}  >
+     <View style={styles.agentAvatarPlaceholder}>
       <Text style={styles.agentInitials}>
-       NA
-       {/* {user?.username?.charAt(0) || "A"} */}
-       {/* {user?.username?.charAt(1) || "A"} */}
+       {user?.name?.charAt(0) || "N"}
+       {user?.name?.charAt(1) || "A"}
       </Text>
-     </TouchableOpacity>
+     </View>
     </View>
 
     {/* Stats Cards */}
     <View style={styles.statsContainer}>
      <View style={[styles.statCard, { backgroundColor: "#4BC0C0" }]}>
       <MaterialIcons name="inventory" size={24} color="white" />
-      <Text style={styles.statNumber}>{stats.products}</Text>
+      <Text style={styles.statNumber}>{dashboardData?.stats?.products}</Text>
       <Text style={styles.statLabel}>Products</Text>
       <Text style={styles.statChange}>
-       ↑ {stats.monthlyGrowth}% this month
+       ↑ {dashboardData?.stats?.monthlyGrowth}% this month
       </Text>
      </View>
 
      <View style={[styles.statCard, { backgroundColor: "#36A2EB" }]}>
       <MaterialIcons name="photo-library" size={24} color="white" />
-      <Text style={styles.statNumber}>{stats.images}</Text>
+      <Text style={styles.statNumber}>{dashboardData?.stats?.images}</Text>
       <Text style={styles.statLabel}>Images</Text>
-      <Text style={styles.statChange}>↑ 8.2% this month</Text>
+      <Text style={styles.statChange}>↑ {dashboardData?.stats?.monthlyGrowth}% This month </Text>
      </View>
     </View>
 
@@ -104,10 +127,10 @@ const DashboardScreen = () => {
     <View style={styles.actionsContainer}>
      <TouchableOpacity
       style={styles.actionButton}
-      onPress={() => router.push("/(protected)/(tab)/product")}
+      onPress={() => router.push("/(protected)/(tab)/profile")}
      >
       <MaterialIcons name="view-carousel" size={20} color="#007AFF" />
-      <Text style={styles.actionText}>View Product</Text>
+      <Text style={styles.actionText}>View Profile</Text>
      </TouchableOpacity>
 
      <TouchableOpacity
@@ -125,9 +148,9 @@ const DashboardScreen = () => {
       <Text style={styles.chartTitle}>Monthly Upload Trend</Text>
       <Text style={styles.chartSubtitle}>Products vs Images</Text>
      </View>
-     <ScrollView horizontal>
+     {dashboardData?.monthlyData ? <ScrollView horizontal>
       <LineChart
-       data={monthlyData}
+       data={dashboardData?.monthlyData}
        width={screenWidth}
        height={220}
        chartConfig={chartConfig}
@@ -137,28 +160,10 @@ const DashboardScreen = () => {
        withHorizontalLines={false}
       />
 
-     </ScrollView>
+     </ScrollView> : <Text>No Data</Text>}
 
     </View>
-    <View style={[styles.chartContainer, { marginBottom: 90 }]}>
-     <View style={styles.chartHeader}>
-      <Text style={styles.chartTitle}>Monthly Upload Trend</Text>
-      <Text style={styles.chartSubtitle}>Products vs Images</Text>
-     </View>
-     <ScrollView horizontal>
-      <LineChart
-       data={monthlyData}
-       width={screenWidth}
-       height={220}
-       chartConfig={chartConfig}
-       style={styles.chart}
-       withVerticalLines={false}
-       withHorizontalLines={false}
-      />
 
-     </ScrollView>
-
-    </View>
    </ScrollView>
   </SafeAreaView>
  );
@@ -183,6 +188,7 @@ const styles = StyleSheet.create({
   fontSize: 24,
   fontWeight: "700",
   color: "#212529",
+  textTransform: "capitalize",
  },
  agentAvatarPlaceholder: {
   width: 40,
@@ -193,7 +199,7 @@ const styles = StyleSheet.create({
   alignItems: "center",
  },
  agentInitials: {
-  color: "#28c1a3",
+  color: '#fb626c',
   fontWeight: "800",
   fontSize: 19,
   textTransform: "uppercase",

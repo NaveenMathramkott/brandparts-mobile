@@ -15,8 +15,9 @@ import {
  TouchableWithoutFeedback,
  View
 } from 'react-native';
-import { useAuth } from '../hooks/useAuth';
-import { authService } from '../services/authService';
+import { brandIcon } from "../../assets/icons/index";
+import { useAuth } from '../../hooks/useAuth';
+import { authService } from '../../services/authService';
 
 const SignInScreen = () => {
  const [credentials, setCredentials] = useState({
@@ -72,16 +73,16 @@ const SignInScreen = () => {
   >
    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <LinearGradient
-     colors={['#f8f9fa', '#e9ecef']}
+     colors={['#eee', 'white']}
      style={styles.gradient}
     >
      <View style={styles.innerContainer}>
       <Image
-       source={{ uri: `https://www.shutterstock.com/image-photo/welcome-onboard-support-symbol-concept-260nw-2133778709.jpg` }}
+       source={brandIcon}
        style={styles.logo}
       />
 
-      <Text style={styles.title}>Welcome Back</Text>
+      <Text style={styles.title}>Background Remover</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
 
       <View style={styles.inputContainer}>
@@ -127,9 +128,9 @@ const SignInScreen = () => {
        </View>
       </View>
 
-      <TouchableOpacity style={styles.forgotPassword}>
+      {/* <TouchableOpacity style={styles.forgotPassword}>
        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity
        style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -153,6 +154,7 @@ const SignInScreen = () => {
 const styles = StyleSheet.create({
  container: {
   flex: 1,
+  backgroundColor: "#eee",
  },
  gradient: {
   flex: 1,
@@ -225,12 +227,12 @@ const styles = StyleSheet.create({
   fontWeight: '500',
  },
  button: {
-  backgroundColor: '#4267B2',
+  backgroundColor: '#fc7c8c',
   padding: 16,
   borderRadius: 10,
   alignItems: 'center',
   justifyContent: 'center',
-  marginBottom: 20,
+  marginVertical: 10,
   elevation: 3,
   shadowColor: '#4267B2',
   shadowOffset: { width: 0, height: 2 },

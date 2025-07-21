@@ -60,7 +60,7 @@ const OnboardingScreen = () => {
        {index === slides.length - 1 && (
         <TouchableOpacity
          style={styles.button}
-         onPress={() => router.push('/signIn')}
+         onPress={() => router.push('/auth/signIn')}
         >
          <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
