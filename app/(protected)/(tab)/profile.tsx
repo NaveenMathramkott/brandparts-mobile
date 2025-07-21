@@ -1,34 +1,56 @@
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../hooks/useAuth';
 const ProfileScreen = () => {
  const router = useRouter();
- const { signOut, user, getUserName, getUserEmail, getUserAvatar } = useAuth();
+ const { signOut, user, } = useAuth();
+ const [profileData, setProfileData] = useState({})
 
- // Sample user data
- // const user = {
- //  name: 'Alex Johnson',
- //  email: 'alex.johnson@example.com',
- //  joinDate: 'Member since June 2023',
- //  avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
- //  stats: {
- //   products: 124,
- //   scans: 567,
- //   contributions: 89
- //  }
- // };
+ const getDashboardMonthlyData = async () => {
+  try {
+   // Replace with your actual API endpoint
+   const response = await axios.get(
+    `http://192.168.1.147:5000/api/product/dashboard?userId=${user?.id}`,
+
+    {
+     headers: {
+      "Content-Type": "application/json",
+     },
+    }
+   );
+
+   return response.data;
+  } catch (error) {
+   console.error("Auth service error:", error);
+   throw error;
+  }
+ }
+
+ useEffect(() => {
+  const fetchData = async () => {
+   try {
+    const data = await getDashboardMonthlyData();
+    setProfileData(data);
+   } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+   }
+  };
+
+  fetchData();
+ }, []);
 
  const menuItems = [
-  { icon: 'settings', name: 'Settings', action: () => { } },
-  { icon: 'help', name: 'Help Center', action: () => { } },
+  // { icon: 'settings', name: 'Settings', action: () => { } },
+  // { icon: 'help', name: 'Help Center', action: () => { } },
   {
    icon: 'logout', name: 'Log Out', action: async () => {
     try {
      await signOut();
-     router.push(`/signIn`)
+     router.push(`/auth/signIn`)
     } catch (error) {
      Alert.alert('Error', 'Failed to logout');
     }
@@ -41,16 +63,11 @@ const ProfileScreen = () => {
    <ScrollView showsVerticalScrollIndicator={false}>
     {/* Header with Back Button */}
     <View style={styles.header}>
-     <TouchableOpacity
-      style={styles.backButton}
-      onPress={() => router.back()}
-     >
-      <Feather name="chevron-left" size={24} color="#007AFF" />
-     </TouchableOpacity>
+
      <Text style={styles.title}>Profile</Text>
-     <TouchableOpacity>
+     {/* <TouchableOpacity>
       <Feather name="edit" size={22} color="#007AFF" />
-     </TouchableOpacity>
+     </TouchableOpacity> */}
     </View>
 
     {/* Rest of your existing code remains the same */}
@@ -76,18 +93,17 @@ const ProfileScreen = () => {
      {/* <Text style={styles.joinDate}>{user.joinDate}</Text> */}
 
      {/* Stats Row */}
+     <View style={styles.statItem}>
+      <Text style={styles.statNumber}>{user.role}</Text>
+     </View>
      <View style={styles.statsContainer}>
       <View style={styles.statItem}>
-       <Text style={styles.statNumber}>{user.role}</Text>
-       <Text style={styles.statLabel}>Products</Text>
+       <Text style={styles.statNumber}>{profileData?.stats?.products}</Text>
+       <Text style={styles.statLabel}>Produts uploads</Text>
       </View>
       <View style={styles.statItem}>
-       <Text style={styles.statNumber}>{user.role}</Text>
-       <Text style={styles.statLabel}>Scans</Text>
-      </View>
-      <View style={styles.statItem}>
-       <Text style={styles.statNumber}>{user.role}</Text>
-       <Text style={styles.statLabel}>Contributions</Text>
+       <Text style={styles.statNumber}>{profileData?.stats?.images}</Text>
+       <Text style={styles.statLabel}>Image Uploads</Text>
       </View>
      </View>
     </View>
@@ -118,7 +134,7 @@ const ProfileScreen = () => {
 
     {/* App Version */}
     <View style={styles.versionContainer}>
-     <Text style={styles.versionText}>App Version 2.4.1</Text>
+     <Text style={styles.versionText}>App Version 1.0.0</Text>
     </View>
    </ScrollView>
   </SafeAreaView >
@@ -134,25 +150,19 @@ const styles = StyleSheet.create({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  padding: 24,
-  paddingBottom: 16,
+  paddingVertical: 16,
+  paddingHorizontal: 24,
   backgroundColor: '#fff',
   borderBottomWidth: 1,
   borderBottomColor: '#e9ecef',
  },
- backButton: {
-  position: 'absolute',
-  left: 16,
-  zIndex: 1,
-  padding: 8,
- },
+
  title: {
   fontSize: 24,
   fontWeight: '700',
   color: '#212529',
   flex: 1,
   textAlign: 'center',
-  marginLeft: -24, // Adjust to center properly with back button
  },
  // Rest of your existing styles remain the same
  profileCard: {
@@ -181,7 +191,7 @@ const styles = StyleSheet.create({
   alignItems: "center",
  },
  agentInitials: {
-  color: "#28c1a3",
+  color: '#fb626c',
   fontWeight: "800",
   fontSize: 32,
   textTransform: "uppercase",
@@ -224,7 +234,7 @@ const styles = StyleSheet.create({
   justifyContent: 'space-between',
   width: '100%',
   marginTop: 16,
-  paddingHorizontal: 20,
+  // paddingHorizontal: 20,
  },
  statItem: {
   alignItems: 'center',
@@ -238,6 +248,7 @@ const styles = StyleSheet.create({
  statLabel: {
   fontSize: 14,
   color: '#6c757d',
+  textAlign: "center"
  },
  menuContainer: {
   backgroundColor: '#fff',
