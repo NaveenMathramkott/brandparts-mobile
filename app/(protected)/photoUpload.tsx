@@ -20,9 +20,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Loader from "../../components/Loader";
 import { useAuth } from "../../hooks/useAuth";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export default function ImageCaptureScreen() {
  const { barcodeData } = useLocalSearchParams();
- const { user } = useAuth();
+ const { user, accessToken } = useAuth();
  const [images, setImages] = useState<string[]>([]);
  const [processedResults, setProcessedResults] = useState({});
  const [bgRemovedImages, setBgRemovedImages] = useState<any[]>([]);
@@ -128,11 +130,11 @@ export default function ImageCaptureScreen() {
 
    // Make single API call with all images
    const response = await axios.post(
-    "http://192.168.1.147:5000/api/product/remove-background",
+    `${apiUrl}/api/product/remove-background`,
     formData,
     {
      headers: {
-      // 'Authorization': `Token 4d9b59dd524e4b06bb781bf406ce799265d0ddb9`,
+      Authorization: `Bearer ${accessToken}`,
       "Content-Type": "multipart/form-data",
      },
      timeout: 30000, // Increased timeout for bulk upload
@@ -201,6 +203,7 @@ export default function ImageCaptureScreen() {
   setFlashMode(flashMode === "torch" ? "off" : "torch");
  };
 
+
  const uploadImage = async () => {
   setIsUploading(true);
   if (bgRemovedImages.length === 0 && !barcodeData) {
@@ -215,25 +218,23 @@ export default function ImageCaptureScreen() {
    skuId: barcodeData,
    userId: user?.id,
    username: user?.name,
+   seller: user?.seller,
+   sellerId: user?.sellerId
   };
   console.log(
    "new payload----",
    JSON.stringify(newPayload, null, 2)
   );
   try {
-   const response = await axios.post(
-    "http://192.168.1.147:5000/api/product/upload-product-images",
+   await axios.post(
+    `${apiUrl}/api/product/upload-product-images`,
     newPayload,
     {
      headers: {
-      // 'Authorization': `Token 4d9b59dd524e4b06bb781bf406ce799265d0ddb9`,
+      Authorization: `Bearer ${accessToken}`,
       "Content-Type": "multipart/form-data",
      },
     }
-   );
-   console.log(
-    "upload data-- to--",
-    JSON.stringify(response, null, 2)
    );
 
    return Alert.alert(

@@ -14,9 +14,11 @@ import { LineChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../../hooks/useAuth";
 
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 const DashboardScreen = () => {
  const router = useRouter();
- const { user } = useAuth();
+ const { user, accessToken } = useAuth();
  const [dashboardData, setDashboardData] = useState({})
  const screenWidth = Dimensions.get("window").width;
 
@@ -37,36 +39,28 @@ const DashboardScreen = () => {
 
  const getDashboardMonthlyData = async () => {
   try {
-   // Replace with your actual API endpoint
-   const response = await axios.get(
-    `http://192.168.1.147:5000/api/product/dashboard?userId=${user?.id}`,
 
+
+   const response = await axios.get(
+    `${apiUrl}/api/product/dashboard?userId=${user?.id}`,
     {
      headers: {
+      Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
      },
     }
    );
-
-   return response.data;
+   setDashboardData(response.data);
   } catch (error) {
-   console.error("Auth service error:", error);
-   throw error;
+   console.error("Error fetching dashboard data:", error);
   }
- }
+ };
 
  useEffect(() => {
-  const fetchData = async () => {
-   try {
-    const data = await getDashboardMonthlyData();
-    setDashboardData(data);
-   } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-   }
-  };
-
-  fetchData();
- }, []);
+  if (user?.id && accessToken) {
+   getDashboardMonthlyData();
+  }
+ }, [user, accessToken]);
 
 
  const chartConfig = {

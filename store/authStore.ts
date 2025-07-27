@@ -7,6 +7,8 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  seller: string;
+  sellerId: string;
 }
 
 interface AuthState {

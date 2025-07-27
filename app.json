@@ -9,18 +9,30 @@
   "userInterfaceStyle": "automatic",
   "newArchEnabled": true,
   "ios": {
-   "supportsTablet": true
+   "supportsTablet": true,
+   "infoPlist": {
+    "NSCameraUsageDescription": "Allow BrandParts to access camera.",
+    "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone"
+   }
+  },
+  "extra": {
+   "API_URL": "process.env.API_URL"
   },
   "android": {
    "permissions": [
-    "READ_EXTERNAL_STORAGE",
-    "WRITE_EXTERNAL_STORAGE"
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.CAMERA",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.CAMERA"
    ],
    "adaptiveIcon": {
     "foregroundImage": "./assets/images/adaptive-icon.png",
     "backgroundColor": "#ffffff"
    },
-   "edgeToEdgeEnabled": true
+   "edgeToEdgeEnabled": true,
+   "package": "com.anonymous.BrandParts"
   },
   "web": {
    "bundler": "metro",

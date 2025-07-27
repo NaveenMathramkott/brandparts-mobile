@@ -10,15 +10,14 @@ export interface SignInResponse {
   user: User;
   accessToken: string;
 }
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 export const authService = {
   signIn: async (credentials: SignInCredentials): Promise<SignInResponse> => {
-    console.log("credentials", credentials);
-
     try {
       // Replace with your actual API endpoint
       const response = await axios.post(
-        "http://192.168.1.147:5000/api/auth/login",
+        `${apiUrl}/api/auth/login`,
         credentials,
         {
           headers: {
@@ -30,7 +29,6 @@ export const authService = {
       return response.data;
     } catch (error) {
       console.error("Auth service error:", error);
-      throw error;
     }
   },
 

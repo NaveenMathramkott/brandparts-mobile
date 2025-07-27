@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -10,6 +11,8 @@ export default function BarcodeScanner() {
  const [isActive, setIsActive] = useState(false);
  const [scannedData, setScannedData] = useState('');
  const [showModal, setShowModal] = useState(false);
+ const [flashMode, setFlashMode] = useState<"off" | "torch">("off");
+
 
  // Handle camera activation with screen focus
  useFocusEffect(
@@ -22,6 +25,11 @@ export default function BarcodeScanner() {
    };
   }, [])
  );
+
+
+ const toggleFlash = () => {
+  setFlashMode(flashMode === "torch" ? "off" : "torch");
+ };
 
  // Request camera permissions
  useEffect(() => {
@@ -71,6 +79,7 @@ export default function BarcodeScanner() {
      style={styles.camera}
      facing="back"
      autofocus="on"
+     enableTorch={flashMode === "torch"}
      onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
      barcodeScannerSettings={{
       barcodeTypes: ['qr', 'pdf417', 'ean13', 'code128'],
@@ -82,7 +91,19 @@ export default function BarcodeScanner() {
      </View>
     </CameraView>
    )}
+   <View style={styles.cameraControls}>
 
+    <TouchableOpacity
+     style={styles.controlButton}
+     onPress={toggleFlash}
+    >
+     <Ionicons
+      name={flashMode === "torch" ? "flash" : "flash-off"}
+      size={28}
+      color="#fff"
+     />
+    </TouchableOpacity>
+   </View>
    <Modal
     visible={showModal}
     transparent={true}
@@ -189,5 +210,18 @@ const styles = StyleSheet.create({
  buttonText: {
   color: 'white',
   fontWeight: 'bold',
+ },
+ cameraControls: {
+  position: "absolute",
+  bottom: 120,
+  right: "57%",
+  transform: `translateX("53%")`,
+  height: 50,
+  borderRadius: "50%",
+  backgroundColor: "rgba(90, 86, 86, 0.6)",
+ },
+ controlButton: {
+  padding: 10,
+  opacity: 0.9,
  },
 });
