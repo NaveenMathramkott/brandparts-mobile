@@ -47,13 +47,15 @@ const SignInScreen = () => {
     name: response.username,
     email: response.email,
     role: response.role,
+    seller: response.seller,
+    sellerId: response.sellerId
    };
 
    await signIn(userData, response.token);
    router.push(`/(protected)/(tab)/home`)
    console.log("respone", JSON.stringify(response, null, 2));
   } catch (error) {
-   Alert.alert('Login Failed', error instanceof Error ? error.message : 'An error occurred');
+   Alert.alert('Login Failed', `Invalid Email or Password!`);
   } finally {
    setIsSubmitting(false);
   }

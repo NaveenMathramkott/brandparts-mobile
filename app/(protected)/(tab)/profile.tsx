@@ -5,19 +5,24 @@ import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from '../../../hooks/useAuth';
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+
 const ProfileScreen = () => {
  const router = useRouter();
- const { signOut, user, } = useAuth();
+ const { signOut, user, accessToken } = useAuth();
  const [profileData, setProfileData] = useState({})
 
  const getDashboardMonthlyData = async () => {
   try {
    // Replace with your actual API endpoint
    const response = await axios.get(
-    `http://192.168.1.147:5000/api/product/dashboard?userId=${user?.id}`,
+    `${apiUrl}/api/product/dashboard?userId=${user?.id}`,
 
     {
      headers: {
+      Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
      },
     }
@@ -267,7 +272,7 @@ const styles = StyleSheet.create({
   alignItems: 'center',
   paddingVertical: 16,
   paddingHorizontal: 20,
-  borderBottomWidth: 1,
+  // borderBottomWidth: 1,
   borderBottomColor: '#f1f3f5',
  },
  menuIcon: {
